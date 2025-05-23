@@ -4,8 +4,13 @@ import Image from "next/image";
 import { Button } from "./ui/button";
 import Link from "next/link";
 import DisplayTechIcons from "./DisplayTechIcons";
+import {
+  getFeedbackByInterviewId,
+  getInterviewById,
+} from "@/lib/actions/general.action";
+import { getCurrentUser } from "@/lib/actions/auth.action";
 
-const InterviewCard = ({
+const InterviewCard = async ({
   id,
   userId,
   techstack,
@@ -13,7 +18,12 @@ const InterviewCard = ({
   type,
   createdAt,
 }: InterviewCardProps) => {
-  const feedback = null as Feedback | null;
+  const user = await getCurrentUser();
+
+  const feedback = await getFeedbackByInterviewId({
+    interviewId: id!,
+    userId: user?.id!,
+  });
 
   const normalisedType = /mix/gi.test(type) ? "MIxed" : type;
   const formattedDate = dayjs(
