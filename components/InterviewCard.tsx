@@ -4,10 +4,7 @@ import Image from "next/image";
 import { Button } from "./ui/button";
 import Link from "next/link";
 import DisplayTechIcons from "./DisplayTechIcons";
-import {
-  getFeedbackByInterviewId,
-  getInterviewById,
-} from "@/lib/actions/general.action";
+import { getFeedbackByInterviewId } from "@/lib/actions/general.action";
 import { getCurrentUser } from "@/lib/actions/auth.action";
 
 const InterviewCard = async ({
@@ -18,17 +15,20 @@ const InterviewCard = async ({
   type,
   createdAt,
 }: InterviewCardProps) => {
-  const user = await getCurrentUser();
-
-  const feedback = await getFeedbackByInterviewId({
-    interviewId: id!,
-    userId: user?.id!,
-  });
+  const feedback =
+    userId && id
+      ? await getFeedbackByInterviewId({
+          interviewId: id,
+          userId: userId,
+        })
+      : null;
 
   const normalisedType = /mix/gi.test(type) ? "MIxed" : type;
   const formattedDate = dayjs(
     feedback?.createdAt || createdAt || Date.now()
   ).format("MMM D, YYYY");
+
+  console.log(feedback);
 
   return (
     <div className="card-border w-[360px] max-sm:w-full min-h-96">
@@ -59,7 +59,7 @@ const InterviewCard = async ({
             </div>
             <div className=" flex flex-row gap-2 items-center">
               <Image src="/star.svg" alt="star" width={22} height={22} />
-              <p>{feedback?.totalScore || "---"}/100</p>
+              <p>{feedback ? feedback?.totalScore : "---"}/100</p>
             </div>
           </div>
           <p className="line-clamp-2 mt-5">
